@@ -1,0 +1,38 @@
+services:
+  app:
+    build: ./
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+          condition: service_healthy
+    command: ./app
+    environment:
+      DB_URL: ${DB_URL}
+    restart: always
+  postgres:
+    image: postgres:latest
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval : 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - "5432:5432"
+  migrate:
+    image: migrate/migrate
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "migrate -path /migrations -database ${DB_URL} up"
+    volumes:
+      - ./migrations:/migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: ${DB_URL}
+    restart: "on-failure"

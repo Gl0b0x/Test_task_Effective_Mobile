@@ -1,0 +1,332 @@
+basePath: /
+definitions:
+  model.SongDetailRequest:
+    properties:
+      group:
+        example: Muse
+        type: string
+      link:
+        example: https://www.youtube.com/watch?v=Xsp3_a-PMTw
+        type: string
+      release_date:
+        example: 14.03.2024
+        type: string
+      song:
+        example: Supermassive Black Hole
+        type: string
+      text:
+        example: |-
+          Ooh baby, don't you know I suffer?
+          Ooh baby, can you hear me moan?
+          You caught me under false pretenses
+          How long before you let me go?
+
+          Ooh
+          You set my soul alight
+          Ooh
+          You set my soul alight
+        type: string
+    type: object
+  model.SongDetailResponse:
+    properties:
+      group:
+        example: Muse
+        type: string
+      link:
+        example: https://www.youtube.com/watch?v=Xsp3_a-PMTw
+        type: string
+      release_date:
+        example: 14.03.2024
+        type: string
+      song:
+        example: Supermassive Black Hole
+        type: string
+      text:
+        example: |-
+          Ooh baby, don't you know I suffer?
+          Ooh baby, can you hear me moan?
+          You caught me under false pretenses
+          How long before you let me go?
+
+          Ooh
+          You set my soul alight
+          Ooh
+          You set my soul alight
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Song library
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /info:
+    get:
+      description: Возвращает информацию о песне
+      parameters:
+      - description: Название группы
+        in: query
+        name: group
+        required: true
+        type: string
+      - description: Название песни
+        in: query
+        name: song
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о песне
+          schema:
+            $ref: '#/definitions/model.SongDetailResponse'
+        "400":
+          description: Неверный запрос, отсутствуют обязательные параметры
+          schema:
+            type: string
+        "404":
+          description: Песня не найдена
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получить информацию о песне по группе и названии песни
+      tags:
+      - Songs
+    patch:
+      consumes:
+      - application/json
+      description: Обновлеят данные песни по группе и названию песни. Обновлеят только
+        переданные данные.
+      parameters:
+      - description: Название песни для обновления данных
+        in: query
+        name: song
+        required: true
+        type: string
+      - description: Название группы для обновления данных
+        in: query
+        name: group
+        required: true
+        type: string
+      - description: Новые данные. Будут обновлены только переданные параметры!
+        in: body
+        name: newInfo
+        required: true
+        schema:
+          $ref: '#/definitions/model.SongDetailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Обновленные данные песни
+          schema:
+            $ref: '#/definitions/model.SongDetailResponse'
+        "400":
+          description: Неверный запрос, отсутсвуют необходимые данные о песне (group,
+            song)
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Обновляет данные песни
+      tags:
+      - Songs
+    post:
+      consumes:
+      - application/json
+      description: Добавление песни с приведенными параметрами.
+      parameters:
+      - description: Информация о песне для создания
+        in: body
+        name: songDetail
+        required: true
+        schema:
+          $ref: '#/definitions/model.SongDetailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о созданной песни
+          schema:
+            $ref: '#/definitions/model.SongDetailResponse'
+        "400":
+          description: Некорректный запрос - неправильные входные данные
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Создание новой песни
+      tags:
+      - Songs
+  /info/all:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список песен с пагинацией (limit и offset).
+      parameters:
+      - default: 10
+        description: Максимальное количество возвращаемых песен
+        in: query
+        maximum: 50
+        minimum: 1
+        name: limit
+        type: integer
+      - default: 0
+        description: Количетство пропускаемых песен
+        in: query
+        maximum: 25
+        minimum: 0
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список песен
+          schema:
+            items:
+              $ref: '#/definitions/model.SongDetailResponse'
+            type: array
+        "404":
+          description: No songs found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Получить информацию о всех песнях
+      tags:
+      - Songs
+  /info/delete:
+    delete:
+      description: Удаляет запись о песне по группе и названию песни.
+      parameters:
+      - description: Название группы для удаления
+        in: query
+        name: group
+        required: true
+        type: string
+      - description: Название песни для удаления
+        in: query
+        name: song
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Песня успешна удалена
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос, отсуствуют необходимые данные
+          schema:
+            type: string
+        "404":
+          description: Не найдено - такой песни нет в базе данных
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Удаляет запись о песне
+      tags:
+      - Songs
+  /info/filter:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает список песен с пагинацией (limit и offset).
+      parameters:
+      - default: 10
+        description: Максимальное количество возвращаемых песен
+        in: query
+        maximum: 50
+        minimum: 1
+        name: limit
+        type: integer
+      - default: 0
+        description: Количетство пропускаемых песен
+        in: query
+        maximum: 25
+        minimum: 0
+        name: offset
+        type: integer
+      - description: Информация о песни, по которой будет происходить фильтрация
+        in: body
+        name: songDetail
+        required: true
+        schema:
+          $ref: '#/definitions/model.SongDetailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список песен по фильтру
+          schema:
+            items:
+              $ref: '#/definitions/model.SongDetailResponse'
+            type: array
+        "400":
+          description: Некорректный запрос - неправильные входные данные
+          schema:
+            type: string
+        "404":
+          description: Не найдено - нет песен удовлетворяющих фильтру
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервиса
+          schema:
+            type: string
+      summary: Получить песни по фильтру
+      tags:
+      - Songs
+  /info/text:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает текст песни на основе названия песни и группы
+      parameters:
+      - description: Имя группы
+        in: query
+        name: group
+        required: true
+        type: string
+      - description: Название песни
+        in: query
+        name: song
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Текст песни
+          schema:
+            type: string
+        "400":
+          description: Некорректный необходимо передать group, song как query param
+          schema:
+            type: string
+        "404":
+          description: Текст песни не добавлен
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получить текст песни
+      tags:
+      - Songs
+swagger: "2.0"
